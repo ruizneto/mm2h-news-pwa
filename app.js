@@ -1,3 +1,4 @@
+alert("JS loaded successfully");
 async function loadNews() {
   const container = document.getElementById("news");
 
