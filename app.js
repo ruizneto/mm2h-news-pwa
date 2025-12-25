@@ -47,3 +47,5 @@ async function loadAll() {
 }
 
 loadAll();
+
+setInterval(loadAll, 30 * 60 * 1000); // every 30 minutes
