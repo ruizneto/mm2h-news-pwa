@@ -1,26 +1,28 @@
-alert("JS loaded successfully");
-async function loadNews() {
-  const container = document.getElementById("news");
+document.getElementById("news").innerHTML = "Loading RSS feed...";
 
-  // Example: Use a simple free news API call
-  const apiKey = "YOUR_FREE_KEY"; // if using API
-  const query = "MM2H Malaysia";
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&token=${apiKey}`;
+fetch("https://api.rss2json.com/v1/api.json?rss_url=https://www.freemalaysiatoday.com/feed/")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("news");
+    container.innerHTML = "";
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    if (data.articles) {
-      data.articles.forEach(item => {
-        const div = document.createElement("div");
-        div.innerHTML = `<a href="${item.url}" target="_blank">${item.title}</a>`;
-        container.appendChild(div);
-      });
+    if (!data.items || data.items.length === 0) {
+      container.innerHTML = "RSS loaded but no items found.";
+      return;
     }
-  } catch (e) {
-    container.innerText = "Error loading news";
-  }
-}
 
-loadNews();
+    data.items.slice(0, 10).forEach(item => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <p>
+          <strong>${item.title}</strong><br>
+          <small>${new Date(item.pubDate).toLocaleString()}</small>
+        </p>
+      `;
+      container.appendChild(div);
+    });
+  })
+  .catch(err => {
+    document.getElementById("news").innerHTML = "RSS fetch failed.";
+    console.error(err);
+  });
