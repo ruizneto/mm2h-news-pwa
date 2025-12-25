@@ -1,28 +1,49 @@
-document.getElementById("news").innerHTML = "Loading RSS feed...";
+const sources = [
+  "https://www.freemalaysiatoday.com/feed/",
+  "https://www.malaymail.com/rss",
+  "https://www.bernama.com/en/rss.php"
+];
 
-fetch("https://api.rss2json.com/v1/api.json?rss_url=https://www.freemalaysiatoday.com/feed/")
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById("news");
-    container.innerHTML = "";
+const keywords = ["mm2h", "my second home", "malaysia my second home"];
 
-    if (!data.items || data.items.length === 0) {
-      container.innerHTML = "RSS loaded but no items found.";
-      return;
+document.getElementById("news").innerHTML = "Scanning Malaysian news for MM2H...";
+
+async function loadAll() {
+  const container = document.getElementById("news");
+  container.innerHTML = "";
+
+  let found = false;
+
+  for (const rss of sources) {
+    try {
+      const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
+      const res = await fetch(api);
+      const data = await res.json();
+
+      data.items.forEach(item => {
+        const text = (item.title + " " + item.description).toLowerCase();
+        if (keywords.some(k => text.includes(k))) {
+          found = true;
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <p>
+              <a href="${item.link}" target="_blank">
+                <strong>${item.title}</strong>
+              </a><br>
+              <small>${new Date(item.pubDate).toLocaleString()}</small>
+            </p>
+          `;
+          container.appendChild(div);
+        }
+      });
+    } catch (e) {
+      console.error("RSS failed:", rss, e);
     }
+  }
 
-    data.items.slice(0, 10).forEach(item => {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <p>
-          <strong>${item.title}</strong><br>
-          <small>${new Date(item.pubDate).toLocaleString()}</small>
-        </p>
-      `;
-      container.appendChild(div);
-    });
-  })
-  .catch(err => {
-    document.getElementById("news").innerHTML = "RSS fetch failed.";
-    console.error(err);
-  });
+  if (!found) {
+    container.innerHTML = "No MM2H-related news found yet. The app will update automatically.";
+  }
+}
+
+loadAll();
