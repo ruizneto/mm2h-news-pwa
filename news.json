@@ -1,21 +1,12 @@
 [
   {
-    "title": "Malaysia extends MM2H visa validity",
-    "link": "https://www.example.com/news1",
-    "date": "2025-06-01T10:00:00Z",
-    "source": "The Star"
+    "title": "MM2H Policy Update",
+    "link": "https://example.com/mm2h-policy",
+    "date": "2025-12-01"
   },
   {
-    "title": "New MM2H policy announced",
-    "link": "https://www.example.com/news2",
-    "date": "2025-03-15T12:30:00Z",
-    "source": "Free Malaysia Today"
-  },
-  {
-    "title": "MM2H quota updated for 2025",
-    "link": "https://www.example.com/news3",
-    "date": "2024-12-28T08:00:00Z",
-    "source": "Bernama"
+    "title": "Another MM2H News",
+    "link": "https://example.com/other-news",
+    "date": "2025-11-20"
   }
-  // Add all other articles here
 ]
