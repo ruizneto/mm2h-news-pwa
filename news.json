@@ -10,3 +10,8 @@
     "date": "2025-11-20"
   }
 ]
+
+fetch('https://api.example.com/mm2h-news')
+  .then(res => res.json())
+  .then(data => showNews(data))
+  .catch(err => console.error("Failed to fetch news", err));
