@@ -1,51 +1,38 @@
-const sources = [
-  "https://www.freemalaysiatoday.com/feed/",
-  "https://www.malaymail.com/rss",
-  "https://www.bernama.com/en/rss.php"
-];
+const apiKey = "1af2f182631aa7a07198b80b60938673";
+const query = "MM2H";
+const fromDate = new Date();
+fromDate.setFullYear(fromDate.getFullYear() - 1);
+const from = fromDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
-const keywords = ["mm2h", "my second home", "malaysia my second home"];
+const container = document.getElementById("news");
+container.innerHTML = "Fetching past 1 year of MM2H news...";
 
-document.getElementById("news").innerHTML = "Scanning Malaysian news for MM2H...";
+async function loadNews() {
+  try {
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&from=${from}&lang=en&max=100&token=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-async function loadAll() {
-  const container = document.getElementById("news");
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  let found = false;
-
-  for (const rss of sources) {
-    try {
-      const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
-      const res = await fetch(api);
-      const data = await res.json();
-
-      data.items.forEach(item => {
-        const text = (item.title + " " + item.description).toLowerCase();
-        if (keywords.some(k => text.includes(k))) {
-          found = true;
-          const div = document.createElement("div");
-          div.innerHTML = `
-            <p>
-              <a href="${item.link}" target="_blank">
-                <strong>${item.title}</strong>
-              </a><br>
-              <small>${new Date(item.pubDate).toLocaleString()}</small>
-            </p>
-          `;
-          container.appendChild(div);
-        }
-      });
-    } catch (e) {
-      console.error("RSS failed:", rss, e);
+    if (!data.articles || data.articles.length === 0) {
+      container.innerHTML = "No MM2H news found for the past year.";
+      return;
     }
-  }
 
-  if (!found) {
-    container.innerHTML = "No MM2H-related news found yet. The app will update automatically.";
+    data.articles.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "news-item";
+      div.innerHTML = `
+        <a href="${item.url}" target="_blank">${item.title}</a><br>
+        <small>${new Date(item.publishedAt).toLocaleString()} | ${item.source.name}</small>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = "Failed to fetch news. Please check your API key and internet connection.";
   }
 }
 
-loadAll();
-
-setInterval(loadAll, 30 * 60 * 1000); // every 30 minutes
+loadNews();
